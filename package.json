@@ -1,0 +1,14 @@
+{
+  "name": "DIDWebserver",
+  "version": "1.0.0",
+  "description": "Simple webserver, serving html with did login.",
+  "main": "server.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Kilian Käslin",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
