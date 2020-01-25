@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import querystring from 'querystring';
 import DidManager from './didManager.js';
+import crypto from 'crypto';
 
 const app = express();
 
@@ -40,7 +41,8 @@ app.listen(port, () =>
 );
 
 function createLoginJWT() {
-  return didManager.ethrDid.signJWT({});
+  const nonce = crypto.randomBytes(24).toString('Base64');
+  return didManager.ethrDid.signJWT({ nonce });
 }
 
 function createLoginUrl(jwt) {
