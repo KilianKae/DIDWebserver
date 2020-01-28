@@ -12,18 +12,17 @@ export default class EthrDid extends EthrDID {
   }
 
   //TODO try to remove / unistall resolvers
-  verifyJWT(jwt, audience = this.did) {
-    let verifiedResponse;
+  async verifyJWT(jwt, audience = this.did) {
     const ethrResolver = ethr.getResolver();
     const resolver = new Resolver(ethrResolver);
-    verifyJWT(jwt, { resolver, audience })
-      .then(response => {
-        verifiedResponse = response;
-        console.log('[EthrDID] verified respone', verifiedResponse);
-      })
-      .catch(error => console.error('[EthrDID] verifyJWT', error));
+    const verifiedJWT = await verifyJWT(jwt, {
+      resolver,
+      audience
+    });
+    return verifiedJWT;
   }
 
+  //TODO adjust to client implementation
   signJWT(content, aud) {
     const alg = 'ES256K-R';
     const name = 'DIDWebserver';

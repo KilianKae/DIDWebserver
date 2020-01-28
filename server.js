@@ -12,6 +12,7 @@ var EthrResolver = require('ethr-did-resolver');
 
 const didManager = new DidManager();
 const port = '8080';
+//TODO create supfiles with logic
 
 // viewed at http://localhost:port
 app.get('/', function(req, res) {
@@ -25,8 +26,8 @@ app.get('/newDid', function(req, res) {
   res.redirect('/');
 });
 
-app.get('/didLogin', function(req, res) {
-  console.log('[server] Received get /didLogin request');
+app.get('/siopRequest', function(req, res) {
+  console.log('[server] Received get /siopRequest request');
   createLoginJWT()
     .then(jwt => {
       const url = createLoginUrl(jwt);
@@ -34,6 +35,27 @@ app.get('/didLogin', function(req, res) {
       res.redirect(url);
     })
     .catch(error => console.log('[server] createLogin', error));
+});
+
+//TODO should be post request
+app.get('/siopResponse', function(req, res) {
+  console.log('[server] Received get /siopResponse request');
+  //TODO check if id_token is available
+  const id_token = req.query.id_token;
+  console.log('[server] req id_token', id_token);
+  //TODO add database check & token generation
+  validateSiopResponse(id_token)
+    .then(obj => {
+      res.status(200).json({ login: true });
+    })
+    .catch(error => {
+      //TODO correct error message
+      console.error('[server] error', error);
+      res.status(400).json({
+        error: 'Bad Request',
+        message: error.toString()
+      });
+    });
 });
 
 app.listen(port, () =>
@@ -55,4 +77,9 @@ function createLoginUrl(jwt) {
   };
   const url = base + querystring.stringify(query);
   return url;
+}
+
+function validateSiopResponse(jwt) {
+  //Use Object Values?
+  return didManager.ethrDid.verifyJWT(jwt);
 }
