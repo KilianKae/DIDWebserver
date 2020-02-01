@@ -6,6 +6,7 @@ import DidManager from './didManager.js';
 import crypto from 'crypto';
 
 const app = express();
+const ip = '192.168.178.123';
 const port = '8080';
 
 const didManager = new DidManager();
@@ -19,6 +20,10 @@ app.use(logger);
 
 app.listen(port, () =>
   console.log('Server started at http://localhost:' + port)
+);
+
+app.listen(port, '192.168.178.123', () =>
+  console.log('Server started at ', ip, 'port:', port)
 );
 
 //TODO create subfiles with logic
@@ -112,7 +117,7 @@ function createLoginUrl(jwt) {
     pathname: 'didapp://login',
     query: {
       response_type: 'id_token',
-      client_id: 'http://localhost:8080',
+      client_id: 'http://' + ip + ':8080',
       scope: 'myid%20did_authn',
       request: jwt
     }
