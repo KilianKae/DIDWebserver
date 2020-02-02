@@ -16,6 +16,9 @@ const logger = function(req, res, next) {
   next();
 };
 
+//TODO
+let userDID = '';
+
 app.use(logger);
 
 app.listen(port, () =>
@@ -46,7 +49,7 @@ app.get('/credentialRequest', function(req, res) {
   //TODO set claim && https://www.w3.org/TR/vc-data-model/
   const claim = {
     credentialSubject: {
-      id: 'please set',
+      id: userDID,
       group: 'admin'
     }
   };
@@ -84,6 +87,8 @@ app.get('/siopResponse', function(req, res) {
   validateSiopResponse(id_token)
     .then(obj => {
       //res.status(200).json({ login: true });
+      //TODO Multi User
+      userDID = obj.issuer;
       res.redirect('/credential');
     })
     .catch(error => {
@@ -136,7 +141,7 @@ async function createCredential(claim) {
 
 function createCredentialUrl(credential) {
   return url.format({
-    pathname: 'didapp://credential',
+    pathname: 'didapp://credentials',
     query: { credential }
   });
 }
