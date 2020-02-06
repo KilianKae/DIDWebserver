@@ -4,29 +4,24 @@ import path from 'path';
 import url from 'url';
 import DidManager from './didManager.js';
 import crypto from 'crypto';
+import config from './config';
+import middelwares from './midelwares';
 
 const app = express();
-const ip = '192.168.178.123';
-const port = '8080';
 
 const didManager = new DidManager();
-
-const logger = function(req, res, next) {
-  console.log('[server] Request URL:', req.originalUrl);
-  next();
-};
 
 //TODO
 let userDID = '';
 
-app.use(logger);
+app.use(middelwares.logger);
 
-app.listen(port, () =>
-  console.log('Server started at http://localhost:' + port)
+app.listen(config.port, () =>
+  console.log('Server started at http://localhost:' + config.port)
 );
 
-app.listen(port, '192.168.178.123', () =>
-  console.log('Server started at ', ip, 'port:', port)
+app.listen(config.port, config.ip, () =>
+  console.log('Server started at ', config.ip, 'port:', config.port)
 );
 
 //TODO create subfiles with logic
@@ -40,12 +35,16 @@ app.get('/credential', function(req, res) {
   res.sendFile(path.join(__dirname + '/credential.html'));
 });
 
+app.get('/protectedResource', function(req, res) {
+  res.sendFile(path.join(__dirname + '/protectedResource.html'));
+});
+
 app.get('/newDid', function(req, res) {
   didManager.newEthrDid();
   res.redirect('/');
 });
 
-app.get('/credentialRequest', function(req, res) {
+app.get('/getCredential', function(req, res) {
   //TODO set claim && https://www.w3.org/TR/vc-data-model/
   const claim = {
     credentialSubject: {
@@ -66,6 +65,25 @@ app.get('/credentialRequest', function(req, res) {
         message: error.toString()
       });
     });
+});
+
+app.get('/credentialRequest', function(req, res) {
+  res.redirect(createCredentialRequestUrl());
+});
+
+app.get('/setCredential', function(req, res) {
+  const query = {
+    subject: req.query.subject,
+    issuer: req.query.issuer,
+    signature: req.query.signature,
+    claims: JSON.parse(req.query.claims)
+  };
+  console.log('[server] query', query);
+  if (
+    query.claims.some(claim => claim.key === 'group' && claim.value === 'admin')
+  ) {
+    res.sendFile(path.join(__dirname + '/protected.html'));
+  }
 });
 
 app.get('/siopRequest', function(req, res) {
@@ -100,11 +118,13 @@ app.get('/siopResponse', function(req, res) {
     });
 });
 
+const client_id = 'http://' + config.ip + ':' + config.port;
+
 async function createLoginJWT() {
   const nonce = crypto.randomBytes(24).toString('Base64');
   const payload = {
     response_type: 'id_token',
-    client_id: 'http://localhost:8080',
+    client_id,
     scope: 'openid did_authn',
     nonce,
     response_mode: 'query'
@@ -122,7 +142,7 @@ function createLoginUrl(jwt) {
     pathname: 'didapp://login',
     query: {
       response_type: 'id_token',
-      client_id: 'http://' + ip + ':8080',
+      client_id,
       scope: 'myid%20did_authn',
       request: jwt
     }
@@ -143,5 +163,13 @@ function createCredentialUrl(credential) {
   return url.format({
     pathname: 'didapp://credentials',
     query: { credential }
+  });
+}
+
+function createCredentialRequestUrl() {
+  const returnUrl = client_id + '/setCredential';
+  return url.format({
+    pathname: 'didapp://credentials',
+    query: { returnUrl }
   });
 }

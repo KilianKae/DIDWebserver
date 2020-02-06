@@ -27,10 +27,7 @@
     <nav class="navbar navbar-default" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">Institution</a>
-          <p class="navbar-text navbar-right">
-            <a href="/" class="navbar-link">Log out</a>
-          </p>
+          <a class="navbar-brand" href="#">Third Party</a>
         </div>
       </div>
     </nav>
@@ -39,18 +36,14 @@
         <div class="row">
           <div class="col-xs-5">
             <p>
-              You are logged in. Provide your verification ID to receive your
-              Verifiable Credential.
+              Please provide a credential by the instiution to access this
+              protected resource.
             </p>
           </div>
           <div class="col-xs-7">
-            <div class="input-group">
-              <span class="input-group-addon">ID</span>
-              <input type="text" class="form-control" placeholder="xx-xx-xx" />
-            </div>
             <button type="button" class="btn btn-default btn-lg gap">
-              <a href="/getCredential">
-                Request Credential
+              <a href="/credentialRequest">
+                Select Credential
               </a>
             </button>
           </div>
