@@ -1,18 +1,15 @@
 'use strict';
 import express from 'express';
 import path from 'path';
-import url from 'url';
-import DidManager from './didManager.js';
-import crypto from 'crypto';
 import config from './config';
 import middelwares from './midelwares';
-
-const app = express();
+import auth from './routes/auth';
+import url from 'url';
+import { getUserDID } from './routes/auth';
+import DidManager from './didManager.js';
 
 const didManager = new DidManager();
-
-//TODO
-let userDID = '';
+const app = express();
 
 app.use(middelwares.logger);
 
@@ -24,19 +21,30 @@ app.listen(config.port, config.ip, () =>
   console.log('Server started at ', config.ip, 'port:', config.port)
 );
 
+app.use('/institution/a/auth', auth);
+app.use('/institution/b/auth', auth);
+
 //TODO create subfiles with logic
 
 // viewed at http://localhost:port
-app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname + '/index.html'));
+app.get('/institution/a', function(req, res) {
+  res.sendFile(path.join(__dirname + '/institution/a/login.html'));
 });
 
-app.get('/credential', function(req, res) {
-  res.sendFile(path.join(__dirname + '/credential.html'));
+app.get('/institution/b', function(req, res) {
+  res.sendFile(path.join(__dirname + '/institution/b/login.html'));
 });
 
-app.get('/protectedResource', function(req, res) {
-  res.sendFile(path.join(__dirname + '/protectedResource.html'));
+app.get('/institution/a/credential', function(req, res) {
+  res.sendFile(path.join(__dirname + '/institution/a/credential.html'));
+});
+
+app.get('/institution/b/accessProtectedResource', function(req, res) {
+  res.sendFile(path.join(__dirname + '/institution/b/protectedResource.html'));
+});
+
+app.get('/institution/b/protectedResource', function(req, res) {
+  res.sendFile(path.join(__dirname + '/institution/b/protected.html'));
 });
 
 app.get('/newDid', function(req, res) {
@@ -44,11 +52,11 @@ app.get('/newDid', function(req, res) {
   res.redirect('/');
 });
 
-app.get('/getCredential', function(req, res) {
+app.get('/institution/a/getCredential', function(req, res) {
   //TODO set claim && https://www.w3.org/TR/vc-data-model/
   const claim = {
     credentialSubject: {
-      id: userDID,
+      id: getUserDID(),
       group: 'admin'
     }
   };
@@ -67,11 +75,11 @@ app.get('/getCredential', function(req, res) {
     });
 });
 
-app.get('/credentialRequest', function(req, res) {
+app.get('/institution/a/credentialRequest', function(req, res) {
   res.redirect(createCredentialRequestUrl());
 });
 
-app.get('/setCredential', function(req, res) {
+app.get('/institution/b/protectedResource', function(req, res) {
   const query = {
     subject: req.query.subject,
     issuer: req.query.issuer,
@@ -82,77 +90,9 @@ app.get('/setCredential', function(req, res) {
   if (
     query.claims.some(claim => claim.key === 'group' && claim.value === 'admin')
   ) {
-    res.sendFile(path.join(__dirname + '/protected.html'));
+    res.redirect('/institution/b/protectedResource');
   }
 });
-
-app.get('/siopRequest', function(req, res) {
-  createLoginJWT()
-    .then(jwt => {
-      const url = createLoginUrl(jwt);
-      console.log('[server] Redirecting to', url);
-      res.redirect(url);
-    })
-    .catch(error => console.log('[server] createLogin', error));
-});
-
-//TODO should be post request
-app.get('/siopResponse', function(req, res) {
-  //TODO check if id_token is available
-  const id_token = req.query.id_token;
-  console.log('[server] req id_token', id_token);
-  //TODO add database check & token generation
-  validateSiopResponse(id_token)
-    .then(obj => {
-      //res.status(200).json({ login: true });
-      //TODO Multi User
-      userDID = obj.issuer;
-      res.redirect('/credential');
-    })
-    .catch(error => {
-      //TODO correct error message
-      res.status(400).json({
-        error: 'Bad Request',
-        message: error.toString()
-      });
-    });
-});
-
-const client_id = 'http://' + config.ip + ':' + config.port;
-
-async function createLoginJWT() {
-  const nonce = crypto.randomBytes(24).toString('Base64');
-  const payload = {
-    response_type: 'id_token',
-    client_id,
-    scope: 'openid did_authn',
-    nonce,
-    response_mode: 'query'
-    // registration: {
-    //   jwks_uri:
-    //     'https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks',
-    //   id_token_signed_response_alg: ['ES256K', 'EdDSA', 'RS256']
-    // }
-  };
-  return await didManager.ethrDid.signJWT({ payload });
-}
-
-function createLoginUrl(jwt) {
-  return url.format({
-    pathname: 'didapp://login',
-    query: {
-      response_type: 'id_token',
-      client_id,
-      scope: 'myid%20did_authn',
-      request: jwt
-    }
-  });
-}
-
-async function validateSiopResponse(jwt) {
-  //Use Object Values?
-  return await didManager.ethrDid.verifyJWT(jwt);
-}
 
 async function createCredential(claim) {
   //TODO get DID of requester
@@ -166,8 +106,10 @@ function createCredentialUrl(credential) {
   });
 }
 
+const client_id_base = 'http://' + config.ip + ':' + config.port;
+
 function createCredentialRequestUrl() {
-  const returnUrl = client_id + '/setCredential';
+  const returnUrl = client_id_base + '/institution/b/protectedResource';
   return url.format({
     pathname: 'didapp://credentials',
     query: { returnUrl }
