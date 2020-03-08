@@ -9,8 +9,6 @@ const endPoints = {
   testnet: 'https://rinkeby.infura.io/v3/de303f7185894e5a862e7482da6e398d'
 };
 
-//TODO
-const testPassword = 'DIDFun';
 const keyStorePath = './keystore.json';
 
 export default class DIDManager {
