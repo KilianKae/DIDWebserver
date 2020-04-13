@@ -21,74 +21,76 @@ app.listen(config.port, config.ip, () =>
   console.log('Server started at ', config.ip, 'port:', config.port)
 );
 
-app.use('/institution/a/auth', auth);
-app.use('/institution/b/auth', auth);
+app.use('/institution', auth);
+app.use('/institution', auth);
 
 //TODO create subfiles with logic
 
 // viewed at http://localhost:port
-app.get('/institution/a', function(req, res) {
+app.get('/institution/a', function (req, res) {
   res.sendFile(path.join(__dirname + '/institution/a/login.html'));
 });
 
-app.get('/institution/b', function(req, res) {
+app.get('/institution/b', function (req, res) {
   res.sendFile(path.join(__dirname + '/institution/b/login.html'));
 });
 
-app.get('/institution/a/credential', function(req, res) {
+app.get('/institution/a/credential', function (req, res) {
   res.sendFile(path.join(__dirname + '/institution/a/credential.html'));
 });
 
-app.get('/institution/b/accessProtectedResource', function(req, res) {
+app.get('/institution/b/accessProtectedResource', function (req, res) {
   res.sendFile(path.join(__dirname + '/institution/b/protectedResource.html'));
 });
 
-app.get('/institution/b/protectedResource', function(req, res) {
+app.get('/institution/b/protectedResource', function (req, res) {
   res.sendFile(path.join(__dirname + '/institution/b/protected.html'));
 });
 
-app.get('/newDid', function(req, res) {
+app.get('/newDid', function (req, res) {
   didManager.newEthrDid();
   res.redirect('/');
 });
 
-app.get('/institution/a/getCredential', function(req, res) {
+app.get('/institution/a/getCredential', function (req, res) {
   //TODO set claim && https://www.w3.org/TR/vc-data-model/
   const claim = {
     credentialSubject: {
       id: getUserDID(),
-      group: 'admin'
-    }
+      group: 'admin',
+    },
   };
   createCredential(claim)
-    .then(credential => {
+    .then((credential) => {
       console.log('[server] credential', credential);
       const url = createCredentialUrl(credential);
       console.log('[server] Redirecting to', url);
       res.redirect(url);
     })
-    .catch(error => {
+    .catch((error) => {
       res.status(500).json({
         error: 'Internal Server Error',
-        message: error.toString()
+        message: error.toString(),
       });
     });
 });
 
-app.get('/institution/a/credentialRequest', function(req, res) {
+app.get('/institution/a/credentialRequest', function (req, res) {
   res.redirect(createCredentialRequestUrl());
 });
 
-app.get('/institution/b/protectedResource', function(req, res) {
+app.get('/institution/b/protectedResource', function (req, res) {
   const query = {
     subject: req.query.subject,
     issuer: req.query.issuer,
     signature: req.query.signature,
-    claims: JSON.parse(req.query.claims)
+    claims: JSON.parse(req.query.claims),
   };
   console.log('[server] query', query);
   if (
-    query.claims.some(claim => claim.key === 'group' && claim.value === 'admin')
+    query.claims.some(
+      (claim) => claim.key === 'group' && claim.value === 'admin'
+    )
   ) {
     res.redirect('/institution/b/protectedResource');
   }
@@ -102,7 +104,7 @@ async function createCredential(claim) {
 function createCredentialUrl(credential) {
   return url.format({
     pathname: 'didapp://credentials',
-    query: { credential }
+    query: { credential },
   });
 }
 
@@ -112,6 +114,6 @@ function createCredentialRequestUrl() {
   const returnUrl = client_id_base + '/institution/b/protectedResource';
   return url.format({
     pathname: 'didapp://credentials',
-    query: { returnUrl }
+    query: { returnUrl },
   });
 }

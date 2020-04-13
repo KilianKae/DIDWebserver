@@ -10,37 +10,39 @@ const didManager = new DidManager();
 
 let userDID = '';
 const client_id_base =
-  'http://' +
-  config.ip +
-  ':' +
-  config.port +
-  '/institution/a/auth/siopResponse';
-const clientA_id = client_id_base;
-const clientB_id = client_id_base + '2';
+  'http://' + config.ip + ':' + config.port + '/institution';
 
-router.get('/siopRequest', function(req, res) {
+const SIOP_REQUEST_URL_A = '/a/auth/siopRequest';
+const SIOP_REQUEST_URL_B = '/b/auth/siopRequest';
+const SIOP_RESPONSE_URL_A = '/a/auth/siopResponse';
+const SIOP_RESPONSE_URL_B = '/b/auth/siopResponse';
+
+const clientA_id = client_id_base + SIOP_RESPONSE_URL_A;
+const clientB_id = client_id_base + SIOP_RESPONSE_URL_B;
+
+router.get(SIOP_REQUEST_URL_A, function (req, res) {
   handleSIOPRequest(res, clientA_id);
 });
 
-router.get('/siopRequest2', function(req, res) {
+router.get(SIOP_REQUEST_URL_B, function (req, res) {
   handleSIOPRequest(res, clientB_id);
 });
 
 function handleSIOPRequest(res, client_id) {
   createLoginJWT(client_id)
-    .then(jwt => {
+    .then((jwt) => {
       const url = createLoginUrl(jwt, client_id);
       console.log('[server] Redirecting to', url);
       res.redirect(url);
     })
-    .catch(error => console.log('[server] createLogin', error));
+    .catch((error) => console.log('[server] createLogin', error));
 }
 
-router.get('/siopResponse', function(req, res) {
+router.get(SIOP_RESPONSE_URL_A, function (req, res) {
   handleSIOPResponse(req, res, '/institution/a/credential');
 });
 
-router.get('/siopResponse2', function(req, res) {
+router.get(SIOP_RESPONSE_URL_B, function (req, res) {
   handleSIOPResponse(req, res, '/institution/b/accessProtectedResource');
 });
 
@@ -50,17 +52,17 @@ function handleSIOPResponse(req, res, redirectUrl) {
   console.log('[server] req id_token', id_token);
   //TODO add database check & token generation
   validateSiopResponse(id_token)
-    .then(obj => {
+    .then((obj) => {
       //res.status(200).json({ login: true });
       //TODO Multi User
       userDID = obj.issuer;
       res.redirect(redirectUrl);
     })
-    .catch(error => {
+    .catch((error) => {
       //TODO correct error message
       res.status(400).json({
         error: 'Bad Request',
-        message: error.toString()
+        message: error.toString(),
       });
     });
 }
@@ -72,7 +74,7 @@ async function createLoginJWT(client_id) {
     client_id,
     scope: 'openid did_authn',
     nonce,
-    response_mode: 'query'
+    response_mode: 'query',
     // registration: {
     //   jwks_uri:
     //     'https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks',
@@ -89,8 +91,8 @@ function createLoginUrl(jwt, client_id) {
       response_type: 'id_token',
       client_id,
       scope: 'myid%20did_authn',
-      request: jwt
-    }
+      request: jwt,
+    },
   });
 }
 
