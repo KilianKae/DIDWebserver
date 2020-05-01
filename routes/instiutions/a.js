@@ -4,6 +4,12 @@ import { getUserDID } from '../auth';
 import url from 'url';
 import DidManager from '../../services/didManager.js';
 
+//Mock Data
+const courses = new Map([
+  ['ics', 'Introduction Computer Sience'],
+  ['ds', 'Data Structures'],
+  ['p', 'Patterns'],
+]);
 const HTML_PATH = '../../pages/institution/a/';
 
 const didManager = new DidManager();
@@ -16,9 +22,10 @@ router.get('/credential', function (req, res) {
   res.sendFile(path.join(__dirname, HTML_PATH, 'credential.html'));
 });
 
-router.get('/getCredential', function (req, res) {
+router.get('/getCredential/:course', function (req, res) {
   //TODO set claim && https://www.w3.org/TR/vc-data-model/
-  const claim = courseCredential('Introduction to CS');
+  const course = courses.get(req.params.course);
+  const claim = courseCredential(course);
   createCredential(claim)
     .then((credential) => {
       console.log('[server] credential', credential);
@@ -35,7 +42,7 @@ router.get('/getCredential', function (req, res) {
 });
 
 async function createCredential(claim) {
-  return await didManager.ethrDid.signJWT({ claim });
+  return await didManager.ethrDid.signJWT(claim);
 }
 
 function createCredentialUrl(credential) {
@@ -47,6 +54,7 @@ function createCredentialUrl(credential) {
 
 function courseCredential(id) {
   return {
+    type: ['VerifiableCredential', 'CourseCredential'],
     credentialSubject: {
       id: getUserDID(),
       participantOf: {
