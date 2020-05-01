@@ -4,7 +4,7 @@ import { getUserDID } from '../auth';
 import url from 'url';
 import DidManager from '../../services/didManager.js';
 
-const HTML_PATH = '../../institution/a/';
+const HTML_PATH = '../../pages/institution/a/';
 
 const didManager = new DidManager();
 const router = express.Router();

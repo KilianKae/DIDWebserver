@@ -5,7 +5,7 @@ import { client_id_base } from '../../config';
 
 const router = express.Router();
 
-const HTML_PATH = '../../institution/b/';
+const HTML_PATH = '../../pages/institution/b/';
 
 router.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, HTML_PATH, 'login.html'));
