@@ -18,12 +18,7 @@ router.get('/credential', function (req, res) {
 
 router.get('/getCredential', function (req, res) {
   //TODO set claim && https://www.w3.org/TR/vc-data-model/
-  const claim = {
-    credentialSubject: {
-      id: getUserDID(),
-      group: 'admin',
-    },
-  };
+  const claim = courseCredential('Introduction to CS');
   createCredential(claim)
     .then((credential) => {
       console.log('[server] credential', credential);
@@ -40,7 +35,6 @@ router.get('/getCredential', function (req, res) {
 });
 
 async function createCredential(claim) {
-  //TODO get DID of requester
   return await didManager.ethrDid.signJWT({ claim });
 }
 
@@ -49,6 +43,17 @@ function createCredentialUrl(credential) {
     pathname: 'didapp://credentials',
     query: { credential },
   });
+}
+
+function courseCredential(id) {
+  return {
+    credentialSubject: {
+      id: getUserDID(),
+      participantOf: {
+        id,
+      },
+    },
+  };
 }
 
 export default router;
