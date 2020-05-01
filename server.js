@@ -1,9 +1,10 @@
 'use strict';
 import express from 'express';
-import path from 'path';
 import config from './config';
 import middelwares from './midelwares';
 import auth from './routes/auth';
+import instituitonA from './routes/instiutions/a';
+import instituitonB from './routes/instiutions/b';
 import url from 'url';
 import { getUserDID } from './routes/auth';
 import DidManager from './didManager.js';
@@ -21,31 +22,13 @@ app.listen(config.port, config.ip, () =>
   console.log('Server started at ', config.ip, 'port:', config.port)
 );
 
+app.use('/institution/a', instituitonA);
+app.use('/institution/b', instituitonB);
+
 app.use('/institution', auth);
 app.use('/institution', auth);
 
 //TODO create subfiles with logic
-
-// viewed at http://localhost:port
-app.get('/institution/a', function (req, res) {
-  res.sendFile(path.join(__dirname + '/institution/a/login.html'));
-});
-
-app.get('/institution/b', function (req, res) {
-  res.sendFile(path.join(__dirname + '/institution/b/login.html'));
-});
-
-app.get('/institution/a/credential', function (req, res) {
-  res.sendFile(path.join(__dirname + '/institution/a/credential.html'));
-});
-
-app.get('/institution/b/accessProtectedResource', function (req, res) {
-  res.sendFile(path.join(__dirname + '/institution/b/protectedResource.html'));
-});
-
-app.get('/institution/b/protectedResource', function (req, res) {
-  res.sendFile(path.join(__dirname + '/institution/b/protected.html'));
-});
 
 app.get('/newDid', function (req, res) {
   didManager.newEthrDid();
