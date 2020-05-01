@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sample Site</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <style>
+      .login-container {
+        width: 100%;
+      }
+
+      .gap {
+        margin-top: 10px;
+      }
+      .navbar-right {
+        text-align: right;
+        padding-right: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Institution B</a>
+        </div>
+      </div>
+    </nav>
+    <div class="jumbotron login-container">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-xs-5">
+            <p>
+              Please provide a credential by the institution to access this
+              protected resource.
+            </p>
+          </div>
+          <div class="col-xs-7">
+            <button type="button" class="btn btn-default btn-lg gap">
+              <a href="/institution/b/credentialRequest">
+                Select Credential
+              </a>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

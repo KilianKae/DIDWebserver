@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import url from 'url';
 
 import config from '../config';
-import DidManager from '../didManager.js';
+import DidManager from '../services/didManager.js';
 
 const router = express.Router();
 const didManager = new DidManager();

@@ -1,9 +1,13 @@
 import express from 'express';
 import path from 'path';
-
-const router = express.Router();
+import { getUserDID } from '../auth';
+import url from 'url';
+import DidManager from '../../services/didManager.js';
 
 const HTML_PATH = '../../institution/a/';
+
+const didManager = new DidManager();
+const router = express.Router();
 
 router.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, HTML_PATH, 'login.html'));
@@ -11,5 +15,40 @@ router.get('/', function (req, res) {
 router.get('/credential', function (req, res) {
   res.sendFile(path.join(__dirname, HTML_PATH, 'credential.html'));
 });
+
+router.get('/getCredential', function (req, res) {
+  //TODO set claim && https://www.w3.org/TR/vc-data-model/
+  const claim = {
+    credentialSubject: {
+      id: getUserDID(),
+      group: 'admin',
+    },
+  };
+  createCredential(claim)
+    .then((credential) => {
+      console.log('[server] credential', credential);
+      const url = createCredentialUrl(credential);
+      console.log('[server] Redirecting to', url);
+      res.redirect(url);
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: 'Internal Server Error',
+        message: error.toString(),
+      });
+    });
+});
+
+async function createCredential(claim) {
+  //TODO get DID of requester
+  return await didManager.ethrDid.signJWT({ claim });
+}
+
+function createCredentialUrl(credential) {
+  return url.format({
+    pathname: 'didapp://credentials',
+    query: { credential },
+  });
+}
 
 export default router;
