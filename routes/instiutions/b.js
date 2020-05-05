@@ -2,8 +2,10 @@ import express from 'express';
 import path from 'path';
 import url from 'url';
 import { client_id_base } from '../../config';
+import DidManager from '../../services/didManager.js';
 
 const router = express.Router();
+const didManager = new DidManager();
 
 const HTML_PATH = '../../pages/institution/b/';
 
@@ -16,24 +18,27 @@ router.get('/accessProtectedResource', function (req, res) {
 });
 
 router.get('/protectedResource', function (req, res) {
-  res.sendFile(path.join(__dirname, HTML_PATH, 'protected.html'));
-});
-
-router.get('/institution/b/protectedResource', function (req, res) {
-  const query = {
-    subject: req.query.subject,
-    issuer: req.query.issuer,
-    signature: req.query.signature,
-    claims: JSON.parse(req.query.claims),
-  };
-  console.log('[server] query', query);
-  if (
-    query.claims.some(
-      (claim) => claim.key === 'group' && claim.value === 'admin'
-    )
-  ) {
-    res.redirect('/institution/b/protectedResource');
-  }
+  const vp = req.query.vp;
+  didManager.ethrDid
+    .verifyJWT(vp)
+    .then((obj) => {
+      //TODO add check for correct claim
+      if (obj.issuer === obj.payload.verfiableCredential.credentialSubject.id) {
+        res.sendFile(path.join(__dirname, HTML_PATH, 'protected.html'));
+      } else {
+        res.status(400).json({
+          error: 'Bad Request',
+          message: error.toString(),
+        });
+      }
+    })
+    .catch((error) => {
+      //TODO correct error message
+      res.status(400).json({
+        error: 'Bad Request',
+        message: error.toString(),
+      });
+    });
 });
 
 router.get('/credentialRequest', function (req, res) {
@@ -42,9 +47,17 @@ router.get('/credentialRequest', function (req, res) {
 
 function createCredentialRequestUrl() {
   const returnUrl = client_id_base + '/institution/b/protectedResource';
+  //TODO
+  const challenge = 'challenge';
+  console.log(
+    url.format({
+      pathname: 'didapp://credentials',
+      query: { returnUrl, challenge },
+    })
+  );
   return url.format({
     pathname: 'didapp://credentials',
-    query: { returnUrl },
+    query: { returnUrl, challenge },
   });
 }
 
