@@ -17,4 +17,23 @@ router.get('/newDid', function (req, res) {
   res.redirect('/admin');
 });
 
+router.get('/setServiceEndpoint', function (req, res) {
+  setServiceEndpoint()
+    .then((obj) => {
+      console.log(obj);
+      res.redirect('/admin');
+    })
+    .catch((error) => {
+      console.trace(error);
+      res.redirect('/admin');
+    });
+});
+
+async function setServiceEndpoint() {
+  return await didManager.ethrDid.setServiceEndpoint(
+    'CredentialService',
+    'localhost:8080/institution/a/credential'
+  );
+}
+
 export default router;

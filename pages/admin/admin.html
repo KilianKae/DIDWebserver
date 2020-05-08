@@ -16,6 +16,9 @@
       .gap {
         margin-top: 10px;
       }
+      .bigGap {
+        margin-top: 30px;
+      }
     </style>
   </head>
 
@@ -30,15 +33,41 @@
     <div class="jumbotron login-container">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-xs-6">
+          <div class="col-xs-4">
             <p>
               Manage DIDs
             </p>
           </div>
-          <div class="col-xs-6">
+          <div class="col-xs-8">
             <button type="button" class="btn btn-default btn-lg">
               <a href="/admin/newDid">
                 New DID
+              </a>
+            </button>
+            <div class="input-group bigGap">
+              <span class="input-group-addon">SN</span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Service Name"
+              />
+            </div>
+            <div class="input-group gap">
+              <span class="input-group-addon">SU</span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Service URL"
+              />
+            </div>
+            <button type="button" class="btn btn-default btn-lg gap">
+              <a href="/admin/setServiceEndpoint">
+                Set Service Endpoint
+              </a>
+            </button>
+            <button type="button" class="btn btn-default btn-lg bigGap">
+              <a href="/admin/rotateKeys">
+                Rotate Keys
               </a>
             </button>
           </div>

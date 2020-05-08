@@ -19,14 +19,8 @@ export default class EthrDid extends EthrDID {
 
   static createKeyPair() {
     const kp = secp256k1.genKeyPair();
-    const x = kp
-      .getPublic()
-      .getX()
-      .toJSON();
-    const y = kp
-      .getPublic()
-      .getY()
-      .toJSON();
+    const x = kp.getPublic().getX().toJSON();
+    const y = kp.getPublic().getY().toJSON();
     const publicKey = kp.getPublic('hex');
     const privateKey = kp.getPrivate('hex');
     const address = toEthereumAddress(publicKey);
@@ -43,8 +37,20 @@ export default class EthrDid extends EthrDID {
     const resolver = new Resolver(ethrResolver);
     const verifiedJWT = await verifyJWT(jwt, {
       resolver,
-      audience
+      audience,
     });
     return verifiedJWT;
+  }
+
+  async rotateEncryptionKeys() {
+    await this.setAttribute(
+      'did/pub/Ed25519/veriKey/base64',
+      Buffer.from('Arl8MN52fwhM4wgBaO4pMFO6M7I11xFqMmPSnxRQk2tx', 'base64'),
+      31104000
+    );
+  }
+
+  async setServiceEndpoint(name, url) {
+    await this.setAttribute(`did/svc/${name}`, url, 10);
   }
 }

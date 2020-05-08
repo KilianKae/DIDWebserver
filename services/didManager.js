@@ -2,11 +2,10 @@ import Web3 from 'web3';
 import HttpProvider from 'ethjs-provider-http';
 import EthrDid from './ethrDid';
 import fs from 'fs';
-import { verifyJWT, decodeJWT, createJWT } from 'did-jwt';
 
 const endPoints = {
   mainnet: 'https://mainnet.infura.io/v3/ab803204cb9b49adb488de9dd5a06ad9',
-  testnet: 'https://rinkeby.infura.io/v3/de303f7185894e5a862e7482da6e398d'
+  testnet: 'https://rinkeby.infura.io/v3/de303f7185894e5a862e7482da6e398d',
 };
 
 const keyStorePath = './keystore.json';
@@ -19,8 +18,11 @@ export default class DIDManager {
       return DIDManager.instance;
     }
     DIDManager.instance = this;
-    this.web3 = new Web3(new Web3.providers.HttpProvider(endPoints.testnet));
+    Web3.providers.HttpProvider.prototype.sendAsync =
+      Web3.providers.HttpProvider.prototype.send;
     this.provider = new HttpProvider(endPoints.testnet);
+    this.web3 = new Web3(this.provider);
+
     this.loadDid(didCallback);
   }
 
@@ -62,11 +64,13 @@ export default class DIDManager {
     this.ethrDid = new EthrDid({
       provider: this.provider,
       address: account.address,
-      privateKey: account.privateKey
+      privateKey: account.privateKey,
     });
+    this.web3.eth.accounts.privateKeyToAccount(account.privateKey);
+    console.log(this.web3.eth.accounts);
 
     if (store) {
-      fs.writeFile(keyStorePath, JSON.stringify(account), function(err) {
+      fs.writeFile(keyStorePath, JSON.stringify(account), function (err) {
         if (err) {
           console.log('[DidManager] addEthrAccount', err);
         }
