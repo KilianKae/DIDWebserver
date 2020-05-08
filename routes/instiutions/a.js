@@ -6,10 +6,11 @@ import DidManager from '../../services/didManager.js';
 
 //Mock Data
 const courses = new Map([
-  ['ics', 'Introduction Computer Sience'],
+  ['ics', 'Introduction to Computer Science'],
   ['ds', 'Data Structures'],
   ['p', 'Patterns'],
 ]);
+
 const HTML_PATH = '../../pages/institution/a/';
 
 const didManager = new DidManager();

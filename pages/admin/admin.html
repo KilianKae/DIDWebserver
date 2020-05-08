@@ -11,6 +11,16 @@
     <style>
       .login-container {
         width: 100%;
+        min-width: 350px;
+      }
+
+      .form {
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .forms {
+        max-width: 510px;
       }
 
       .gap {
@@ -38,13 +48,13 @@
               Manage DIDs
             </p>
           </div>
-          <div class="col-xs-8">
-            <button type="button" class="btn btn-default btn-lg">
+          <div class="col-xs-8 forms">
+            <button type="button" class="btn btn-default btn-lg form">
               <a href="/admin/newDid">
                 New DID
               </a>
             </button>
-            <div class="input-group bigGap">
+            <div class="input-group bigGap form">
               <span class="input-group-addon">SN</span>
               <input
                 type="text"
@@ -52,7 +62,7 @@
                 placeholder="Service Name"
               />
             </div>
-            <div class="input-group gap">
+            <div class="input-group gap form">
               <span class="input-group-addon">SU</span>
               <input
                 type="text"
@@ -60,12 +70,12 @@
                 placeholder="Service URL"
               />
             </div>
-            <button type="button" class="btn btn-default btn-lg gap">
+            <button type="button" class="btn btn-default btn-lg gap form">
               <a href="/admin/setServiceEndpoint">
                 Set Service Endpoint
               </a>
             </button>
-            <button type="button" class="btn btn-default btn-lg bigGap">
+            <button type="button" class="btn btn-default btn-lg bigGap form">
               <a href="/admin/rotateKeys">
                 Rotate Keys
               </a>

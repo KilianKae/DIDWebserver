@@ -42,6 +42,7 @@ export default class EthrDid extends EthrDID {
     return verifiedJWT;
   }
 
+  //TODO
   async rotateEncryptionKeys() {
     await this.setAttribute(
       'did/pub/Ed25519/veriKey/base64',
