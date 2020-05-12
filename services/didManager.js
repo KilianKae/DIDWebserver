@@ -52,11 +52,6 @@ export default class DIDManager {
   newEthrDid() {
     const keypair = EthrDid.createKeyPair();
     console.log('[DidManager] Generated new keypair', keypair);
-    // const keypair_test = this.web3.eth.accounts.create();
-    // this.web3.eth.accounts.wallet.clear();
-    // this.web3.eth.accounts.wallet.add(keypair_test);
-    // console.log('[DidManager] Generated new keypair_test', keypair_test);
-    // console.log('[DidManager] Web3', this.web3.eth.accounts.wallet);
     this.addEthrAccount(keypair);
   }
 
