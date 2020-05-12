@@ -4,8 +4,8 @@
   "description": "Simple webserver, serving html with did login.",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon -r esm server.js",
-    "test": "test"
+    "start": "nodemon --ignore 'keystore.json' -r esm server.js",
+    "debug": "nodemon --ignore 'keystore.json' --inspect -r esm server.js"
   },
   "author": "Kilian Käslin",
   "license": "ISC",
@@ -13,9 +13,12 @@
     "did-jwt": "^4.0.0",
     "did-resolver": "^1.1.0",
     "esm": "^3.2.25",
+    "ethjs-provider-signer": "^0.1.4",
+    "ethjs-signer": "^0.1.1",
     "ethr-did": "^1.1.0",
     "ethr-did-resolver": "^1.0.3",
     "express": "^4.17.1",
+    "hex2dec": "^1.1.2",
     "web3": "^1.2.4"
   }
 }

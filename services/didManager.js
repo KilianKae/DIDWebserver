@@ -1,14 +1,18 @@
 import Web3 from 'web3';
-import HttpProvider from 'ethjs-provider-http';
+import { resolve } from './resolver';
 import EthrDid from './ethrDid';
 import fs from 'fs';
+import SignerProvider from 'ethjs-provider-signer';
+import { sign } from 'ethjs-signer';
 
 const endPoints = {
   mainnet: 'https://mainnet.infura.io/v3/ab803204cb9b49adb488de9dd5a06ad9',
   testnet: 'https://rinkeby.infura.io/v3/de303f7185894e5a862e7482da6e398d',
+  localNode: 'http://localhost:8546',
 };
 
 const keyStorePath = './keystore.json';
+const transactionGas = 210000;
 
 export default class DIDManager {
   ethrDid;
@@ -18,11 +22,7 @@ export default class DIDManager {
       return DIDManager.instance;
     }
     DIDManager.instance = this;
-    Web3.providers.HttpProvider.prototype.sendAsync =
-      Web3.providers.HttpProvider.prototype.send;
-    this.provider = new HttpProvider(endPoints.testnet);
-    this.web3 = new Web3(this.provider);
-
+    this.web3 = new Web3(new Web3.providers.HttpProvider(endPoints.testnet));
     this.loadDid(didCallback);
   }
 
@@ -52,6 +52,11 @@ export default class DIDManager {
   newEthrDid() {
     const keypair = EthrDid.createKeyPair();
     console.log('[DidManager] Generated new keypair', keypair);
+    // const keypair_test = this.web3.eth.accounts.create();
+    // this.web3.eth.accounts.wallet.clear();
+    // this.web3.eth.accounts.wallet.add(keypair_test);
+    // console.log('[DidManager] Generated new keypair_test', keypair_test);
+    // console.log('[DidManager] Web3', this.web3.eth.accounts.wallet);
     this.addEthrAccount(keypair);
   }
 
@@ -61,13 +66,18 @@ export default class DIDManager {
   }
 
   addEthrAccount(account, store = true) {
+    const provider = new SignerProvider(endPoints.testnet, {
+      signTransaction: (rawTx, cb) => {
+        rawTx.gas = transactionGas;
+        console.log('[test]', rawTx);
+        cb(null, sign(rawTx, account.privateKey));
+      },
+    });
     this.ethrDid = new EthrDid({
-      provider: this.provider,
+      provider: provider,
       address: account.address,
       privateKey: account.privateKey,
     });
-    this.web3.eth.accounts.privateKeyToAccount(account.privateKey);
-    console.log(this.web3.eth.accounts);
 
     if (store) {
       fs.writeFile(keyStorePath, JSON.stringify(account), function (err) {
@@ -78,7 +88,11 @@ export default class DIDManager {
     }
   }
 
-  getDids() {
-    return this.ethrDids;
+  async getBalance() {
+    return await this.web3.eth.getBalance(this.ethrDid.address);
+  }
+
+  async resolve() {
+    return await resolve(this.ethrDid.did);
   }
 }

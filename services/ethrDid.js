@@ -28,7 +28,7 @@ export default class EthrDid extends EthrDID {
     const crv = 'secp256k1';
     const kty = 'EC';
     const jwk = { crv, x, y, kty, kid };
-    return { address, privateKey, jwk };
+    return { address, publicKey, privateKey, jwk };
   }
 
   //TODO try to remove, unistall resolvers
@@ -42,13 +42,26 @@ export default class EthrDid extends EthrDID {
     return verifiedJWT;
   }
 
-  //TODO
-  async rotateEncryptionKeys() {
-    await this.setAttribute(
-      'did/pub/Ed25519/veriKey/base64',
-      Buffer.from('Arl8MN52fwhM4wgBaO4pMFO6M7I11xFqMmPSnxRQk2tx', 'base64'),
-      31104000
-    );
+  rotateEncryptionKeys() {
+    const keyPair = EthrDid.createKeyPair();
+    return new Promise((resolve, reject) => {
+      this.setAttribute(
+        'did/pub/secp256k1/veriKey/hex',
+        keyPair.publicKey,
+        31104000
+      )
+        .then((res) => {
+          console.log(
+            'Successfully set new key to DID Document with response: ',
+            res
+          );
+          //this.signer = didJWT.SimpleSigner(keyPair.privateKey);
+          resolve(res);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 
   async setServiceEndpoint(name, url) {

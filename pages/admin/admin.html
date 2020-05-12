@@ -29,7 +29,52 @@
       .bigGap {
         margin-top: 30px;
       }
+      .info {
+        font-size: 15px !important;
+      }
+      .didDoc {
+        white-space: pre;
+        font-size: 10px !important;
+        background-color: aliceblue;
+      }
+      .didbutton {
+        background-color: crimson;
+      }
+      .didbutton a {
+        color: #000;
+      }
     </style>
+    <script>
+      window.onload = function () {
+        displayDid();
+      };
+
+      function displayDid() {
+        const request = new XMLHttpRequest();
+
+        request.open('GET', '/admin/did');
+
+        request.onreadystatechange = function () {
+          if (this.readyState === 4 && this.status === 200) {
+            const responseJson = JSON.parse(this.responseText);
+            document.getElementById(
+              'did'
+            ).innerHTML = `DID: ${responseJson.did}`;
+            document.getElementById(
+              'balance'
+            ).innerHTML = `Balance: ${responseJson.balance}`;
+            document.getElementById('document').innerHTML = JSON.stringify(
+              responseJson.didDoc,
+              null,
+              3
+            );
+          }
+        };
+
+        // Sending the request to the server
+        request.send();
+      }
+    </script>
   </head>
 
   <body>
@@ -43,18 +88,19 @@
     <div class="jumbotron login-container">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-xs-4">
+          <div class="col-xs-12">
             <p>
-              Manage DIDs
+              Manage DID
             </p>
           </div>
-          <div class="col-xs-8 forms">
-            <button type="button" class="btn btn-default btn-lg form">
-              <a href="/admin/newDid">
-                New DID
-              </a>
-            </button>
-            <div class="input-group bigGap form">
+          <div class="col-xs-12 col-md-5">
+            <p id="did" class="info">Loading DID</p>
+            <p id="balance" class="info">Loading Balance</p>
+            <p class="info">DID Document:</p>
+            <p id="document" class="info didDoc">Loading</p>
+          </div>
+          <div class="col-xs-12 col-lg-6 forms">
+            <div class="input-group form">
               <span class="input-group-addon">SN</span>
               <input
                 type="text"
@@ -78,6 +124,14 @@
             <button type="button" class="btn btn-default btn-lg bigGap form">
               <a href="/admin/rotateKeys">
                 Rotate Keys
+              </a>
+            </button>
+            <button
+              type="button"
+              class="btn btn-default btn-lg bigGap form didbutton"
+            >
+              <a href="/admin/newDid">
+                New DID
               </a>
             </button>
           </div>
