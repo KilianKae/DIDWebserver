@@ -71,15 +71,18 @@
               null,
               3
             );
-            const serviceEndpoints = responseJson.didDoc.service.map(
-              (service) => {
-                return `<br>Type: ${service.type} URL: ${service.serviceEndpoint}`;
-              }
-            );
+            let serviceEndpointsString = 'No Service Endpoint Set';
+            if (responseJson.didDoc.service) {
+              const serviceEndpoints = responseJson.didDoc.service.map(
+                (service) => {
+                  return `<br>Type: ${service.type} URL: ${service.serviceEndpoint}`;
+                }
+              );
+              serviceEndpointsString = serviceEndpoints.join('');
+            }
             document.getElementById(
               'service-endpoint'
-            ).innerHTML = `Service Enpoints: ${serviceEndpoints.toString()}`;
-            ).innerHTML = `Service Enpoints: ${serviceEndpoints.join('')}`;
+            ).innerHTML = `Service Enpoints: ${serviceEndpointsString}`;
           }
         };
         request.send();
