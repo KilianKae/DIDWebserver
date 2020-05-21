@@ -59,7 +59,10 @@
             const responseJson = JSON.parse(this.responseText);
             document.getElementById(
               'did'
-            ).innerHTML = `DID: ${responseJson.did}`;
+            ).innerHTML = `DID: did:ethr:${responseJson.did}`;
+            document.getElementById(
+              'address'
+            ).innerHTML = `Ethereum Address: ${responseJson.did}`;
             document.getElementById(
               'balance'
             ).innerHTML = `Balance: ${responseJson.balance}`;
@@ -68,10 +71,17 @@
               null,
               3
             );
+            const serviceEndpoints = responseJson.didDoc.service.map(
+              (service) => {
+                return `<br>Type: ${service.type} URL: ${service.serviceEndpoint}`;
+              }
+            );
+            document.getElementById(
+              'service-endpoint'
+            ).innerHTML = `Service Enpoints: ${serviceEndpoints.toString()}`;
+            ).innerHTML = `Service Enpoints: ${serviceEndpoints.join('')}`;
           }
         };
-
-        // Sending the request to the server
         request.send();
       }
     </script>
@@ -94,8 +104,14 @@
             </p>
           </div>
           <div class="col-xs-12 col-md-5">
-            <p id="did" class="info">Loading DID</p>
-            <p id="balance" class="info">Loading Balance</p>
+            <ul class="list-group">
+              <li class="list-group-item info" id="did">Loading DID</li>
+              <li class="list-group-item info" id="address">Loading Address</li>
+              <li class="list-group-item info" id="balance">Loading Balance</li>
+              <li class="list-group-item info" id="service-endpoint">
+                Loding Service Endpoints
+              </li>
+            </ul>
             <p class="info">DID Document:</p>
             <p id="document" class="info didDoc">Loading</p>
           </div>

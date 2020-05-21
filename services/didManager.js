@@ -64,12 +64,12 @@ export default class DIDManager {
     const provider = new SignerProvider(endPoints.testnet, {
       signTransaction: (rawTx, cb) => {
         rawTx.gas = transactionGas;
-        console.log('[test]', rawTx);
+        console.log('[Signer] transaction: ', rawTx);
         cb(null, sign(rawTx, account.privateKey));
       },
     });
     this.ethrDid = new EthrDid({
-      provider: provider,
+      provider,
       address: account.address,
       privateKey: account.privateKey,
     });
