@@ -65,7 +65,7 @@ export default class DIDManager {
       signTransaction: (rawTx, cb) => {
         rawTx.gas = transactionGas;
         console.log('[Signer] transaction: ', rawTx);
-        cb(null, sign(rawTx, account.privateKey));
+        cb(null, sign(rawTx, '0x' + account.privateKey));
       },
     });
     this.ethrDid = new EthrDid({
